@@ -1,4 +1,4 @@
-import { type VxeColumnPropTypes } from "vxe-table/types/column"
+import { type VxeColumnPropTypes } from "vxe-pc-ui/types/components/column"
 
 const slots: VxeColumnPropTypes.Slots = {
   default: ({ row, column }) => {

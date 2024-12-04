@@ -1,8 +1,11 @@
 import { type App } from "vue"
-// https://vxetable.cn/#/table/start/install
-import VXETable from "vxe-table"
 // https://github.com/x-extends/vxe-table-plugin-element
 import VXETablePluginElement from "vxe-table-plugin-element"
+
+import VxeUI from "vxe-pc-ui"
+import "vxe-pc-ui/lib/style.css"
+import VXETable from "vxe-table"
+import "vxe-table/lib/style.css"
 
 VXETable.use(VXETablePluginElement)
 
@@ -14,8 +17,6 @@ VXETable.setConfig({
   zIndex: 9999,
   /** 版本号，对于某些带数据缓存的功能有用到，上升版本号可以用于重置数据 */
   version: 0,
-  /** 全局 loading 提示内容，如果为 null 则不显示文本 */
-  loadingText: null,
   table: {
     showHeader: true,
     showOverflow: "tooltip",
@@ -62,5 +63,5 @@ VXETable.setConfig({
 
 export function loadVxeTable(app: App) {
   /** Vxe Table 组件完整引入 */
-  app.use(VXETable)
+  app.use(VxeUI).use(VXETable)
 }
