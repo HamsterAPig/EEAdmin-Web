@@ -1,20 +1,16 @@
 <script lang="ts" setup>
-import type { FormInstance, FormRules } from "element-plus"
-import type { LoginRequestData } from "./apis/type"
-import { useSettingsStore } from "@/pinia/stores/settings"
-import { useUserStore } from "@/pinia/stores/user"
-import ThemeSwitch from "@@/components/ThemeSwitch/index.vue"
-import { Key, Loading, Lock, Picture, User } from "@element-plus/icons-vue"
-import { getLoginCodeApi, loginApi } from "./apis"
+import { reactive, ref } from "vue"
+import { useRouter } from "vue-router"
+import { useUserStore } from "@/store/modules/user"
+import { type FormInstance, type FormRules } from "element-plus"
+import { User, Lock, Key, Picture, Loading } from "@element-plus/icons-vue"
+import { getCaptchaId } from "@/api/login"
+import { type LoginRequestData } from "@/api/login/types/login"
+import ThemeSwitch from "@/components/ThemeSwitch/index.vue"
 import Owl from "./components/Owl.vue"
-import { useFocus } from "./composables/useFocus"
+import { useFocus } from "./hooks/useFocus"
 
 const router = useRouter()
-
-const userStore = useUserStore()
-
-const settingsStore = useSettingsStore()
-
 const { isFocus, handleBlur, handleFocus } = useFocus()
 
 /** 登录表单元素的引用 */
@@ -22,80 +18,74 @@ const loginFormRef = ref<FormInstance | null>(null)
 
 /** 登录按钮 Loading */
 const loading = ref(false)
-
 /** 验证码图片 URL */
 const codeUrl = ref("")
-
 /** 登录表单数据 */
 const loginFormData: LoginRequestData = reactive({
-  username: "admin",
-  password: "12345678",
-  code: ""
+  user_name: "",
+  password: "",
+  captcha_code: "",
+  captcha_id: ""
 })
-
 /** 登录表单校验规则 */
 const loginFormRules: FormRules = {
-  username: [
-    { required: true, message: "请输入用户名", trigger: "blur" }
-  ],
+  user_name: [{ required: true, message: "请输入用户名", trigger: "blur" }],
   password: [
     { required: true, message: "请输入密码", trigger: "blur" },
     { min: 8, max: 16, message: "长度在 8 到 16 个字符", trigger: "blur" }
   ],
-  code: [
-    { required: true, message: "请输入验证码", trigger: "blur" }
-  ]
+  captcha_code: [{ required: true, message: "请输入验证码", trigger: "blur" }]
 }
-
-/** 登录 */
-function handleLogin() {
-  loginFormRef.value?.validate((valid) => {
-    if (!valid) {
-      ElMessage.error("表单校验不通过")
-      return
+/** 登录逻辑 */
+const handleLogin = () => {
+  loginFormRef.value?.validate((valid: boolean, fields) => {
+    if (valid) {
+      loading.value = true
+      useUserStore()
+        .login(loginFormData)
+        .then(() => {
+          router.push({ path: "/" })
+        })
+        .catch(() => {
+          createCode()
+          loginFormData.password = ""
+        })
+        .finally(() => {
+          loading.value = false
+        })
+    } else {
+      console.error("表单校验不通过", fields)
     }
-    loading.value = true
-    loginApi(loginFormData).then(({ data }) => {
-      userStore.setToken(data.token)
-      router.push("/")
-    }).catch(() => {
-      createCode()
-      loginFormData.password = ""
-    }).finally(() => {
-      loading.value = false
-    })
   })
 }
-
 /** 创建验证码 */
-function createCode() {
-  // 清空已输入的验证码
-  loginFormData.code = ""
-  // 清空验证图片
-  codeUrl.value = ""
-  // 获取验证码图片
-  getLoginCodeApi().then((res) => {
-    codeUrl.value = res.data
+const createCode = () => {
+  // 先清空验证码的输入
+  loginFormData.captcha_code = ""
+  getCaptchaId().then((res) => {
+    loginFormData.captcha_id = res.data.captcha_id
+    // 获取验证码
+    codeUrl.value = import.meta.env.VITE_BASE_API + "/pub/login/captcha?id=" + loginFormData.captcha_id
   })
 }
 
-// 初始化验证码
+/** 初始化验证码 */
 createCode()
 </script>
 
 <template>
   <div class="login-container">
-    <ThemeSwitch v-if="settingsStore.showThemeSwitch" class="theme-switch" />
+    <ThemeSwitch class="theme-switch" />
     <Owl :close-eyes="isFocus" />
     <div class="login-card">
       <div class="title">
-        <img src="@@/assets/images/layouts/logo-text-2.png">
+        <img src="@/assets/layouts/logo-text-2.png" />
       </div>
       <div class="content">
         <el-form ref="loginFormRef" :model="loginFormData" :rules="loginFormRules" @keyup.enter="handleLogin">
           <el-form-item prop="username">
             <el-input
-              v-model.trim="loginFormData.username"
+              v-model.trim="loginFormData.user_name"
               placeholder="用户名"
               type="text"
               tabindex="1"
@@ -118,18 +108,16 @@ createCode()
           </el-form-item>
           <el-form-item prop="code">
             <el-input
-              v-model.trim="loginFormData.code"
+              v-model.trim="loginFormData.captcha_code"
               placeholder="验证码"
               type="text"
               tabindex="3"
               :prefix-icon="Key"
               maxlength="7"
               size="large"
-              @blur="handleBlur"
-              @focus="handleFocus"
             >
               <template #append>
-                <el-image :src="codeUrl" draggable="false" @click="createCode">
+                <el-image :src="codeUrl" @click="createCode" draggable="false">
                   <template #placeholder>
                     <el-icon>
                       <Picture />
@@ -144,9 +132,7 @@ createCode()
               </template>
             </el-input>
           </el-form-item>
-          <el-button :loading="loading" type="primary" size="large" @click.prevent="handleLogin">
-            登 录
-          </el-button>
+          <el-button :loading="loading" type="primary" size="large" @click.prevent="handleLogin">登 录</el-button>
         </el-form>
       </div>
     </div>
