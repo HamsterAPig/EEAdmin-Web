@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { nextTick, reactive, ref } from "vue"
+import { nextTick, reactive, ref, Slots } from "vue"
 import { type ElMessageBoxOptions, ElMessageBox, ElMessage } from "element-plus"
 import { deleteTableDataApi, getTableDataApi } from "@/api/table"
 import { type TableResponseData } from "@/api/table/types/table"
@@ -13,6 +13,7 @@ import {
   type VxeFormInstance,
   type VxeFormProps
 } from "vxe-table"
+import { VxeTableDataRow } from "vxe-pc-ui"
 
 defineOptions({
   // 命名当前组件
@@ -97,7 +98,7 @@ const xGridOpt: VxeGridProps = reactive({
       field: "roles",
       title: "角色",
       /** 自定义列与 type: "html" 的列一起使用，会产生错误，所以采用 TSX 实现 */
-      slots: RoleColumnSlots
+      slots: RoleColumnSlots as Slots
     },
     {
       field: "phone",
@@ -110,7 +111,7 @@ const xGridOpt: VxeGridProps = reactive({
     {
       field: "status",
       title: "状态",
-      slots: StatusColumnSlots
+      slots: StatusColumnSlots as Slots
     },
     {
       field: "createTime",
