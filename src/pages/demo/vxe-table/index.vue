@@ -1,17 +1,26 @@
 <script lang="ts" setup>
-import type { TableResponseData } from "@@/apis/table/type"
-import type { ElMessageBoxOptions } from "element-plus"
-import type { VxeFormInstance, VxeFormProps, VxeGridInstance, VxeGridProps, VxeModalInstance, VxeModalProps } from "vxe-table"
-import { deleteTableDataApi, getTableDataApi } from "@@/apis/table"
-import { RoleColumnSlots } from "./tsx/RoleColumnSlots"
-import { StatusColumnSlots } from "./tsx/StatusColumnSlots"
+import { nextTick, reactive, ref, Slots } from "vue"
+import { type ElMessageBoxOptions, ElMessageBox, ElMessage } from "element-plus"
+import { deleteTableDataApi, getTableDataApi } from "@/api/table"
+import { type TableResponseData } from "@/api/table/types/table"
+import RoleColumnSlots from "./tsx/RoleColumnSlots"
+import StatusColumnSlots from "./tsx/StatusColumnSlots"
+import {
+  type VxeGridInstance,
+  type VxeGridProps,
+  type VxeModalInstance,
+  type VxeModalProps,
+  type VxeFormInstance,
+  type VxeFormProps
+} from "vxe-table"
+import { VxeTableDataRow } from "vxe-pc-ui"
 
 defineOptions({
   // 命名当前组件
   name: "VxeTable"
 })
 
-// #region vxe-grid
+//#region vxe-grid
 interface RowMeta {
   id: string
   username: string
@@ -23,6 +32,7 @@ interface RowMeta {
   /** vxe-table 自动添加上去的属性 */
   _VXE_ID?: string
 }
+
 const xGridDom = ref<VxeGridInstance>()
 const xGridOpt: VxeGridProps = reactive({
   loading: true,
@@ -38,20 +48,14 @@ const xGridOpt: VxeGridProps = reactive({
         field: "username",
         itemRender: {
           name: "$input",
-          props: {
-            placeholder: "用户名",
-            clearable: true
-          }
+          props: { placeholder: "用户名", clearable: true }
         }
       },
       {
         field: "phone",
         itemRender: {
           name: "$input",
-          props: {
-            placeholder: "手机号",
-            clearable: true
-          }
+          props: { placeholder: "手机号", clearable: true }
         }
       },
       {
@@ -59,17 +63,10 @@ const xGridOpt: VxeGridProps = reactive({
           name: "$buttons",
           children: [
             {
-              props: {
-                type: "submit",
-                content: "查询",
-                status: "primary"
-              }
+              props: { type: "submit", content: "查询", status: "primary" }
             },
             {
-              props: {
-                type: "reset",
-                content: "重置"
-              }
+              props: { type: "reset", content: "重置" }
             }
           ]
         }
@@ -80,9 +77,7 @@ const xGridOpt: VxeGridProps = reactive({
   toolbarConfig: {
     refresh: true,
     custom: true,
-    slots: {
-      buttons: "toolbar-btns"
-    }
+    slots: { buttons: "toolbar-btns" }
   },
   /** 自定义列配置项 */
   customConfig: {
@@ -103,7 +98,7 @@ const xGridOpt: VxeGridProps = reactive({
       field: "roles",
       title: "角色",
       /** 自定义列与 type: "html" 的列一起使用，会产生错误，所以采用 TSX 实现 */
-      slots: RoleColumnSlots
+      slots: RoleColumnSlots as Slots
     },
     {
       field: "phone",
@@ -116,7 +111,7 @@ const xGridOpt: VxeGridProps = reactive({
     {
       field: "status",
       title: "状态",
-      slots: StatusColumnSlots
+      slots: StatusColumnSlots as Slots
     },
     {
       field: "createTime",
@@ -127,9 +122,7 @@ const xGridOpt: VxeGridProps = reactive({
       width: "150px",
       fixed: "right",
       showOverflow: false,
-      slots: {
-        default: "row-operate"
-      }
+      slots: { default: "row-operate" }
     }
   ],
   /** 数据代理配置项（基于 Promise API） */
@@ -139,7 +132,7 @@ const xGridOpt: VxeGridProps = reactive({
     /** 是否代理表单 */
     form: true,
     /** 是否自动加载，默认为 true */
-    autoLoad: true,
+    // autoLoad: false,
     props: {
       total: "total"
     },
@@ -150,7 +143,7 @@ const xGridOpt: VxeGridProps = reactive({
         return new Promise((resolve) => {
           let total = 0
           let result: RowMeta[] = []
-          // 加载数据
+          /** 加载数据 */
           const callback = (res: TableResponseData) => {
             if (res?.data) {
               // 总数
@@ -162,23 +155,24 @@ const xGridOpt: VxeGridProps = reactive({
             // 返回值有格式要求，详情见 vxe-table 官方文档
             resolve({ total, result })
           }
-          // 接口需要的参数
+
+          /** 接口需要的参数 */
           const params = {
             username: form.username || undefined,
             phone: form.phone || undefined,
             size: page.pageSize,
             currentPage: page.currentPage
           }
-          // 调用接口
+          /** 调用接口 */
           getTableDataApi(params).then(callback).catch(callback)
         })
       }
     }
   }
 })
-// #endregion
+//#endregion
 
-// #region vxe-modal
+//#region vxe-modal
 const xModalDom = ref<VxeModalInstance>()
 const xModalOpt: VxeModalProps = reactive({
   title: "",
@@ -190,9 +184,9 @@ const xModalOpt: VxeModalProps = reactive({
     return Promise.resolve()
   }
 })
-// #endregion
+//#endregion
 
-// #region vxe-form
+//#region vxe-form
 const xFormDom = ref<VxeFormInstance>()
 const xFormOpt: VxeFormProps = reactive({
   span: 24,
@@ -210,45 +204,22 @@ const xFormOpt: VxeFormProps = reactive({
     {
       field: "username",
       title: "用户名",
-      itemRender: {
-        name: "$input",
-        props: {
-          placeholder: "请输入"
-        }
-      }
+      itemRender: { name: "$input", props: { placeholder: "请输入" } }
     },
     {
       field: "password",
       title: "密码",
-      itemRender: {
-        name: "$input",
-        props: {
-          placeholder: "请输入"
-        }
-      }
+      itemRender: { name: "$input", props: { placeholder: "请输入" } }
     },
     {
       align: "right",
       itemRender: {
         name: "$buttons",
         children: [
+          { props: { content: "取消" }, events: { click: () => xModalDom.value?.close() } },
           {
-            props: {
-              content: "取消"
-            },
-            events: {
-              click: () => xModalDom.value?.close()
-            }
-          },
-          {
-            props: {
-              type: "submit",
-              content: "确定",
-              status: "primary"
-            },
-            events: {
-              click: () => crudStore.onSubmitForm()
-            }
+            props: { type: "submit", content: "确定", status: "primary" },
+            events: { click: () => crudStore.onSubmitForm() }
           }
         ]
       }
@@ -284,9 +255,9 @@ const xFormOpt: VxeFormProps = reactive({
     ]
   }
 })
-// #endregion
+//#endregion
 
-// #region 增删改查
+//#region 增删改查
 const crudStore = reactive({
   /** 表单类型，true 表示修改，false 表示新增 */
   isUpdate: true,
@@ -377,7 +348,7 @@ const crudStore = reactive({
   /** 更多自定义方法 */
   moreFn: () => {}
 })
-// #endregion
+//#endregion
 </script>
 
 <template>
@@ -386,21 +357,13 @@ const crudStore = reactive({
     <vxe-grid ref="xGridDom" v-bind="xGridOpt">
       <!-- 左侧按钮列表 -->
       <template #toolbar-btns>
-        <vxe-button status="primary" icon="vxe-icon-add" @click="crudStore.onShowModal()">
-          新增用户
-        </vxe-button>
-        <vxe-button status="danger" icon="vxe-icon-delete">
-          批量删除
-        </vxe-button>
+        <vxe-button status="primary" icon="vxe-icon-add" @click="crudStore.onShowModal()">新增用户</vxe-button>
+        <vxe-button status="danger" icon="vxe-icon-delete">批量删除</vxe-button>
       </template>
       <!-- 操作 -->
       <template #row-operate="{ row }">
-        <el-button link type="primary" @click="crudStore.onShowModal(row)">
-          修改
-        </el-button>
-        <el-button link type="danger" @click="crudStore.onDelete(row)">
-          删除
-        </el-button>
+        <el-button link type="primary" @click="crudStore.onShowModal(row)">修改</el-button>
+        <el-button link type="danger" @click="crudStore.onDelete(row)">删除</el-button>
       </template>
     </vxe-grid>
     <!-- 弹窗 -->
