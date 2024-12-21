@@ -260,13 +260,13 @@ const xFormOpt: VxeFormProps = reactive({
   rules: {
     user_name: [
       { required: true, message: "字母开头5~10位数" },
-      { min: 4, max: 20, message: "长度应介于4到20之间" },
-      { pattern: /^[a-zA-Z][a-zA-Z0-9_ ]+$/, message: "用户名仅允许字母开头，且不应包含除字母数字空格外的字符" }
+      { min: 2, max: 20, message: "长度应介于2到20之间" },
+      { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9_ ]+$/, message: "用户名仅允许字母开头，且不应包含除字母数字空格外的字符" }
     ],
     real_name: [
       { required: true, message: "真名不能为空" },
-      { min: 4, max: 20, message: "长度应介于4到20之间" },
-      { pattern: /^[a-zA-Z][a-zA-Z0-9_ ]+$/, message: "用户名仅允许字母开头，且不应包含除字母数字空格外的字符" }
+      { min: 2, max: 20, message: "长度应介于2到20之间" },
+      { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9_ ]+$/, message: "用户名仅允许字母开头，且不应包含除字母数字空格外的字符" }
     ],
     password: [
       { required: true, message: "密码不能为空" },
@@ -294,13 +294,11 @@ const crudStore = reactive({
       xModalOpt.title = "修改用户"
       // 赋值
       xFormOpt.data = row
+      xFormOpt.data.password = ""
     } else {
       crudStore.isUpdate = false
       xModalOpt.title = "新增用户"
     }
-    // 禁用表单项
-    const props = xFormOpt.items?.[2]?.itemRender?.props
-    props && (props.disabled = crudStore.isUpdate)
     xModalDom.value?.open()
     nextTick(() => {
       !crudStore.isUpdate && xFormDom.value?.reset()
