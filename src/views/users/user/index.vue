@@ -329,7 +329,23 @@ const crudStore = reactive({
     }
   },
   /** 删除 */
-  onDelete: (row: RowMeta) => {},
+  onDelete: (row: RowMeta) => {
+    VxeUI.modal
+      .confirm({
+        title: "确认删除?",
+        content: `确认删除用户: ${row.user_name} ?`,
+        escClosable: true
+      })
+      .then((type) => {
+        if (type === "confirm") {
+          UserInfoFun.deleteUser(row.id)
+          const $grid = xGridDom.value
+          if ($grid) {
+            $grid.remove(row)
+          }
+        }
+      })
+  },
   /** 删除后是否返回上一页 */
   afterDelete: () => {
     const tableData: RowMeta[] = xGridDom.value!.getData()
