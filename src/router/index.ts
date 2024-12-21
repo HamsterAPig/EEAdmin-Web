@@ -129,6 +129,15 @@ export const constantRoutes: RouteRecordRaw[] = [
           title: "Vxe Table",
           keepAlive: true
         }
+      },
+      {
+        path: "userinfo",
+        component: () => import("@/views/users/user/index.vue"),
+        name: "userinfo",
+        meta: {
+          title: "用户信息",
+          keepAlive: true
+        }
       }
     ]
   },
