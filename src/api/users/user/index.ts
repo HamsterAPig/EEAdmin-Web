@@ -37,3 +37,10 @@ export function changeUserStatus(id: string, status: number) {
     method: "patch"
   })
 }
+
+export function deleteUser(id: string) {
+  return request<PublicType.UserCreateRequest>({
+    url: `users/${id}`,
+    method: "delete"
+  })
+}
