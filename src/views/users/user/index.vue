@@ -293,13 +293,13 @@ const crudStore = reactive({
       crudStore.isUpdate = true
       xModalOpt.title = "修改用户"
       // 赋值
-      xFormOpt.data.username = row.user_name
+      xFormOpt.data = row
     } else {
       crudStore.isUpdate = false
       xModalOpt.title = "新增用户"
     }
     // 禁用表单项
-    const props = xFormOpt.items?.[0]?.itemRender?.props
+    const props = xFormOpt.items?.[2]?.itemRender?.props
     props && (props.disabled = crudStore.isUpdate)
     xModalDom.value?.open()
     nextTick(() => {
