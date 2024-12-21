@@ -62,6 +62,27 @@ export const constantRoutes: RouteRecordRaw[] = [
     ]
   },
   {
+    path: "/system",
+    component: Layouts,
+    redirect: "/system/userinfo",
+    name: "System",
+    meta: {
+      title: "系统管理",
+      elIcon: "Grid"
+    },
+    children: [
+      {
+        path: "userinfo",
+        component: () => import("@/views/system/user/index.vue"),
+        name: "UserInfo",
+        meta: {
+          title: "用户管理",
+          keepAlive: true
+        }
+      }
+    ]
+  },
+  {
     path: "/unocss",
     component: Layouts,
     redirect: "/unocss/index",
@@ -127,15 +148,6 @@ export const constantRoutes: RouteRecordRaw[] = [
         name: "VxeTable",
         meta: {
           title: "Vxe Table",
-          keepAlive: true
-        }
-      },
-      {
-        path: "userinfo",
-        component: () => import("@/views/users/user/index.vue"),
-        name: "userinfo",
-        meta: {
-          title: "用户信息",
           keepAlive: true
         }
       }
