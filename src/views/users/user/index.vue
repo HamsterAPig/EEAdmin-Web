@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { nextTick, reactive, ref } from "vue"
-import { type ElMessageBoxOptions, ElMessageBox, ElMessage } from "element-plus"
+import { type ElMessageBoxOptions, ElMessageBox } from "element-plus"
 import type * as UserInfoStruct from "@/api/users/types"
 import * as UserInfoFun from "@/api/users/user"
 import {
@@ -13,7 +13,6 @@ import {
 } from "vxe-table"
 
 import VxeUI, { VxeFormItemPropTypes, VxeSelectProps } from "vxe-pc-ui"
-import { userInfo } from "node:os"
 
 defineOptions({
   // 命名当前组件
@@ -100,7 +99,10 @@ const xGridOpt: VxeGridProps = reactive({
     {
       field: "roles",
       title: "角色"
-      /** 自定义列与 type: "html" 的列一起使用，会产生错误，所以采用 TSX 实现 */
+    },
+    {
+      field: "password",
+      title: "密码"
     },
     {
       field: "phone",
@@ -299,6 +301,9 @@ const crudStore = reactive({
       crudStore.isUpdate = false
       xModalOpt.title = "新增用户"
     }
+    if (xFormOpt?.rules?.password?.[0]) {
+      xFormOpt.rules.password[0].required = !crudStore.isUpdate
+    }
     xModalDom.value?.open()
     nextTick(() => {
       !crudStore.isUpdate && xFormDom.value?.reset()
@@ -314,7 +319,6 @@ const crudStore = reactive({
       const callback = () => {
         xFormOpt.loading = false
         xModalDom.value?.close()
-        ElMessage.success("操作成功")
         VxeUI.modal.notification({
           content: "操作成功",
           status: "success"
@@ -323,17 +327,9 @@ const crudStore = reactive({
         crudStore.commitQuery()
       }
       if (crudStore.isUpdate) {
-        // 模拟调用修改接口成功
-        setTimeout(() => callback(), 1000)
+        UserInfoFun.changeUser(xFormOpt.data).then(callback)
       } else {
-        UserInfoFun.createUser(xFormOpt.data)
-          .then(callback)
-          .catch((error) => {
-            VxeUI.modal.notification({
-              content: error,
-              status: "error"
-            })
-          })
+        UserInfoFun.createUser(xFormOpt.data).then(callback).catch(callback)
       }
     })
   },

@@ -16,3 +16,11 @@ export function createUser(data: PublicType.UserCreateRequest) {
     method: "post"
   })
 }
+
+export function changeUser(data: PublicType.UserCreateRequest) {
+  return request<PublicType.UserCreateRequest>({
+    url: `users/${data.id}`,
+    data: data,
+    method: "put"
+  })
+}
