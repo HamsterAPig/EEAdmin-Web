@@ -22,8 +22,18 @@ VXETable.setConfig({
     showOverflow: "tooltip",
     showHeaderOverflow: "tooltip",
     autoResize: true,
-    // stripe: false,
+    stripe: true,
     border: "inner",
+    loading: true,
+    height: "auto",
+    scrollX: {
+      enabled: true,
+      gt: 100
+    },
+    scrollY: {
+      enabled: true,
+      gt: 32
+    },
     // round: false,
     emptyText: "暂无数据",
     rowConfig: {
@@ -44,7 +54,7 @@ VXETable.setConfig({
     perfect: false,
     pageSize: 10,
     pagerCount: 7,
-    pageSizes: [10, 20, 50],
+    pageSizes: [10, 100, 1000],
     layouts: ["Total", "PrevJump", "PrevPage", "Number", "NextPage", "NextJump", "Sizes", "FullJump"]
   },
   modal: {

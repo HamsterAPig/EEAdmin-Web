@@ -38,8 +38,7 @@ const xGridOpt: VxeGridProps = reactive({
   height: "auto",
   /** 分页配置项 */
   pagerConfig: {
-    align: "right",
-    pageSizes: [10, 100, 1000]
+    align: "right"
   },
   /** 表单配置项 */
   formConfig: {
