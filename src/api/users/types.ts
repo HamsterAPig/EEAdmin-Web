@@ -50,6 +50,7 @@ export interface UserResponse {
   roles: Role[]
   status: number
   user_name: string
+  creator: string
 }
 
 export interface Pagination {
@@ -61,6 +62,10 @@ export interface Pagination {
 export type UserListResponseData = ApiResponseData<{
   list: UserResponse[]
   pagination: Pagination
+}>
+
+export type UserCreateResponse = ApiResponseData<{
+  id: string
 }>
 
 export type RoleListResponseData = ApiResponseData<{

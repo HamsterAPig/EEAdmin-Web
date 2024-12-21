@@ -3,8 +3,16 @@ import type * as PublicType from "../types"
 
 export function getUserList(params: PublicType.UserListRequest) {
   return request<PublicType.UserListResponseData>({
-    url: "pub/current/user",
+    url: "users",
     params: params,
     method: "get"
+  })
+}
+
+export function createUser(data: PublicType.UserCreateRequest) {
+  return request<PublicType.UserCreateRequest>({
+    url: "users",
+    data: data,
+    method: "post"
   })
 }

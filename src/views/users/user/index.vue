@@ -12,7 +12,8 @@ import {
   type VxeFormProps
 } from "vxe-table"
 
-import { VxeFormItemPropTypes, VxeSelectProps } from "vxe-pc-ui"
+import VxeUI, { VxeFormItemPropTypes, VxeSelectProps } from "vxe-pc-ui"
+import { userInfo } from "node:os"
 
 defineOptions({
   // 命名当前组件
@@ -92,6 +93,10 @@ const xGridOpt: VxeGridProps = reactive({
       title: "用户名"
     },
     {
+      field: "real_name",
+      title: "真名"
+    },
+    {
       field: "roles",
       title: "角色"
       /** 自定义列与 type: "html" 的列一起使用，会产生错误，所以采用 TSX 实现 */
@@ -107,6 +112,10 @@ const xGridOpt: VxeGridProps = reactive({
     {
       field: "status",
       title: "状态"
+    },
+    {
+      field: "creator",
+      title: "创建者"
     },
     {
       field: "created_at",
@@ -307,6 +316,10 @@ const crudStore = reactive({
         xFormOpt.loading = false
         xModalDom.value?.close()
         ElMessage.success("操作成功")
+        VxeUI.modal.notification({
+          content: "操作成功",
+          status: "success"
+        })
         !crudStore.isUpdate && crudStore.afterInsert()
         crudStore.commitQuery()
       }
@@ -314,8 +327,14 @@ const crudStore = reactive({
         // 模拟调用修改接口成功
         setTimeout(() => callback(), 1000)
       } else {
-        // 模拟调用新增接口成功
-        setTimeout(() => callback(), 1000)
+        UserInfoFun.createUser(xFormOpt.data)
+          .then(callback)
+          .catch((error) => {
+            VxeUI.modal.notification({
+              content: error,
+              status: "error"
+            })
+          })
       }
     })
   },
