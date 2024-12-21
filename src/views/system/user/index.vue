@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { nextTick, reactive, ref } from "vue"
-import type * as UserInfoStruct from "@/api/users/types"
-import * as UserInfoFun from "@/api/users/user"
+import type * as UserInfoStruct from "@/api/system/types"
+import * as UserInfoFun from "@/api/system/user"
 import {
   type VxeGridInstance,
   type VxeGridProps,
@@ -12,7 +12,6 @@ import {
 } from "vxe-table"
 
 import VxeUI, { VxeFormItemPropTypes, VxeGridListeners, VxeSelectProps } from "vxe-pc-ui"
-import { changeUserStatus, deleteUser } from "@/api/users/user"
 
 defineOptions({
   // 命名当前组件
@@ -93,7 +92,7 @@ const xGridOpt: VxeGridProps = reactive({
         props: { openValue: 1, closeValue: 2 },
         events: {
           change(cellParams: { row: RowMeta }) {
-            changeUserStatus(cellParams.row.id, cellParams.row.status)
+            UserInfoFun.changeUserStatus(cellParams.row.id, cellParams.row.status)
           }
         }
       }
