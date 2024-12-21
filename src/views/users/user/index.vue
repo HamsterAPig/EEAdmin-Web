@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { nextTick, reactive, ref } from "vue"
-import { type ElMessageBoxOptions, ElMessageBox } from "element-plus"
 import type * as UserInfoStruct from "@/api/users/types"
 import * as UserInfoFun from "@/api/users/user"
 import {
@@ -13,7 +12,7 @@ import {
 } from "vxe-table"
 
 import VxeUI, { VxeFormItemPropTypes, VxeGridListeners, VxeSelectProps } from "vxe-pc-ui"
-import { changeUserStatus } from "@/api/users/user"
+import { changeUserStatus, deleteUser } from "@/api/users/user"
 
 defineOptions({
   // 命名当前组件
@@ -111,7 +110,7 @@ const xGridOpt: VxeGridProps = reactive({
       title: "操作",
       width: "150px",
       fixed: "right",
-      showOverflow: false,
+      showOverflow: true,
       slots: { default: "row-operate" }
     }
   ],
@@ -330,25 +329,7 @@ const crudStore = reactive({
     }
   },
   /** 删除 */
-  onDelete: (row: RowMeta) => {
-    const tip = `确定 <strong style="color: var(--el-color-danger);"> 删除 </strong> 用户 <strong style="color: var(--el-color-primary);"> ${row.user_name} </strong> ？`
-    const config: ElMessageBoxOptions = {
-      type: "warning",
-      showClose: true,
-      closeOnClickModal: true,
-      closeOnPressEscape: true,
-      cancelButtonText: "取消",
-      confirmButtonText: "确定",
-      dangerouslyUseHTMLString: true
-    }
-    ElMessageBox.confirm(tip, "提示", config).then(() => {
-      // deleteTableDataApi(row.id).then(() => {
-      //   ElMessage.success("删除成功")
-      //   crudStore.afterDelete()
-      //   crudStore.commitQuery()
-      // })
-    })
-  },
+  onDelete: (row: RowMeta) => {},
   /** 删除后是否返回上一页 */
   afterDelete: () => {
     const tableData: RowMeta[] = xGridDom.value!.getData()
