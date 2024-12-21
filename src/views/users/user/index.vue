@@ -35,9 +35,11 @@ const xGridDom = ref<VxeGridInstance>()
 const xGridOpt: VxeGridProps = reactive({
   loading: true,
   autoResize: true,
+  height: "auto",
   /** 分页配置项 */
   pagerConfig: {
-    align: "right"
+    align: "right",
+    pageSizes: [10, 100, 1000]
   },
   /** 表单配置项 */
   formConfig: {
@@ -383,7 +385,7 @@ const crudStore = reactive({
 </script>
 
 <template>
-  <div class="app-container">
+  <div class="app-container" :style="{ overflow: 'hidden' }">
     <!-- 表格 -->
     <vxe-grid ref="xGridDom" v-bind="xGridOpt">
       <!-- 左侧按钮列表 -->
