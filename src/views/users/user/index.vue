@@ -12,7 +12,8 @@ import {
   type VxeFormProps
 } from "vxe-table"
 
-import VxeUI, { VxeFormItemPropTypes, VxeSelectProps } from "vxe-pc-ui"
+import VxeUI, { VxeFormItemPropTypes, VxeGridListeners, VxeSelectProps } from "vxe-pc-ui"
+import { changeUserStatus } from "@/api/users/user"
 
 defineOptions({
   // 命名当前组件
@@ -32,6 +33,7 @@ const rolesItemRender = reactive<VxeFormItemPropTypes.ItemRender<RowMeta, VxeSel
 
 const xGridDom = ref<VxeGridInstance>()
 const xGridOpt: VxeGridProps = reactive({
+  id: "VxeUserInfo",
   loading: true,
   autoResize: true,
   height: "auto",
@@ -39,43 +41,15 @@ const xGridOpt: VxeGridProps = reactive({
   pagerConfig: {
     align: "right"
   },
-  /** 表单配置项 */
-  formConfig: {
-    items: [
-      {
-        field: "username",
-        itemRender: {
-          name: "$input",
-          props: { placeholder: "用户名", clearable: true }
-        }
-      },
-      {
-        field: "phone",
-        itemRender: {
-          name: "$input",
-          props: { placeholder: "手机号", clearable: true }
-        }
-      },
-      {
-        itemRender: {
-          name: "$buttons",
-          children: [
-            {
-              props: { type: "submit", content: "查询", status: "primary" }
-            },
-            {
-              props: { type: "reset", content: "重置" }
-            }
-          ]
-        }
-      }
-    ]
-  },
   /** 工具栏配置 */
   toolbarConfig: {
     refresh: true,
     custom: true,
-    slots: { buttons: "toolbar-btns" }
+    buttons: [
+      { icon: "vxe-icon-add", code: "add", status: "primary", circle: true },
+      { icon: "vxe-icon-delete", code: "del", status: "error", circle: true },
+      { icon: "vxe-icon-save", code: "save", status: "success", circle: true }
+    ]
   },
   /** 自定义列配置项 */
   customConfig: {
@@ -114,7 +88,16 @@ const xGridOpt: VxeGridProps = reactive({
     },
     {
       field: "status",
-      title: "状态"
+      title: "状态",
+      cellRender: {
+        name: "VxeSwitch",
+        props: { openValue: 1, closeValue: 2 },
+        events: {
+          change(cellParams: { row: RowMeta }) {
+            changeUserStatus(cellParams.row.id, cellParams.row.status)
+          }
+        }
+      }
     },
     {
       field: "creator",
@@ -136,8 +119,6 @@ const xGridOpt: VxeGridProps = reactive({
   proxyConfig: {
     /** 启用动态序号代理 */
     seq: true,
-    /** 是否代理表单 */
-    form: true,
     /** 是否自动加载，默认为 true */
     // autoLoad: false,
     props: {
@@ -232,11 +213,8 @@ const xFormOpt: VxeFormProps = reactive({
       field: "status",
       title: "状态",
       itemRender: {
-        name: "VxeSelect",
-        options: [
-          { label: "启用", value: 1 },
-          { label: "禁用", value: 2 }
-        ]
+        name: "VxeSwitch",
+        props: { openValue: 2, closeValue: 1 }
       }
     },
     {
@@ -280,6 +258,14 @@ const xFormOpt: VxeFormProps = reactive({
   }
 })
 //#endregion
+
+const gridEvents: VxeGridListeners<RowMeta> = {
+  toolbarButtonClick({ code }) {
+    if (code === "add") {
+      crudStore.onShowModal()
+    }
+  }
+}
 
 //#region 增删改查
 const crudStore = reactive({
@@ -380,12 +366,7 @@ const crudStore = reactive({
 <template>
   <div class="app-container" :style="{ overflow: 'hidden' }">
     <!-- 表格 -->
-    <vxe-grid ref="xGridDom" v-bind="xGridOpt">
-      <!-- 左侧按钮列表 -->
-      <template #toolbar-btns>
-        <vxe-button status="primary" icon="vxe-icon-add" @click="crudStore.onShowModal()">新增用户</vxe-button>
-        <vxe-button status="danger" icon="vxe-icon-delete">批量删除</vxe-button>
-      </template>
+    <vxe-grid ref="xGridDom" v-bind="xGridOpt" v-on="gridEvents">
       <!-- 操作 -->
       <template #row-operate="{ row }">
         <el-button link type="primary" @click="crudStore.onShowModal(row)">修改</el-button>
