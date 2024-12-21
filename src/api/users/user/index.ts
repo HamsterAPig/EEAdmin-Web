@@ -24,3 +24,16 @@ export function changeUser(data: PublicType.UserCreateRequest) {
     method: "put"
   })
 }
+
+export function changeUserStatus(id: string, status: number) {
+  let ret
+  if (status == 1) {
+    ret = "enable"
+  } else {
+    ret = "disable"
+  }
+  return request({
+    url: `users/${id}/${ret}`,
+    method: "patch"
+  })
+}

@@ -34,6 +34,9 @@ VXETable.setConfig({
       enabled: true,
       gt: 32
     },
+    customConfig: {
+      storage: true
+    },
     // round: false,
     emptyText: "暂无数据",
     rowConfig: {
@@ -43,7 +46,8 @@ VXETable.setConfig({
       keyField: "_VXE_ID"
     },
     columnConfig: {
-      resizable: false
+      resizable: true,
+      drag: true
     },
     align: "center",
     headerAlign: "center"
@@ -52,9 +56,9 @@ VXETable.setConfig({
     // size: "medium",
     /** 配套的样式 */
     perfect: false,
-    pageSize: 10,
+    pageSize: 100,
     pagerCount: 7,
-    pageSizes: [10, 100, 1000],
+    pageSizes: [10, 100, 500, 1000, 2000, 5000],
     layouts: ["Total", "PrevJump", "PrevPage", "Number", "NextPage", "NextJump", "Sizes", "FullJump"]
   },
   modal: {
