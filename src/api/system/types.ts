@@ -1,4 +1,4 @@
-export interface UserCreateRequest {
+export interface UserInfoBase {
   created_at: string // 时间字段
   creator: string // 创建者
   email: string // 邮箱
@@ -6,20 +6,23 @@ export interface UserCreateRequest {
   password: string // 密码
   phone: string // 电话
   real_name: string // 真实姓名
-  role_ids: string[] // 角色ID数组
   status: number // 状态
   user_name: string // 用户名
 }
+
+export interface UserCreateRequest extends UserInfoBase {}
+
+export interface UserResponse extends UserInfoBase {}
 
 export interface RequestParams {
   current: number
   pageSize: number
   queryValue: string
-  status: string
+  status: number
 }
 
 export interface UserListRequest extends RequestParams {
-  roleIDs: string
+  role_ids: string
 }
 
 export interface RoleMenu {
@@ -39,18 +42,6 @@ export interface Role {
   sequence: number
   status: number
   updatedAt: string
-}
-
-export interface UserResponse {
-  created_at: string
-  email: string
-  id: string
-  phone: string
-  real_name: string
-  roles: Role[]
-  status: number
-  user_name: string
-  creator: string
 }
 
 export interface Pagination {

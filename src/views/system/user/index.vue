@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { nextTick, reactive, ref } from "vue"
+import { nextTick, reactive, ref, Slots } from "vue"
 import type * as UserInfoStruct from "@/api/system/types"
 import * as UserInfoFun from "@/api/system/user"
 import {
@@ -12,6 +12,8 @@ import {
 } from "vxe-table"
 
 import VxeUI, { VxeFormItemPropTypes, VxeGridListeners, VxeSelectProps } from "vxe-pc-ui"
+import { getRoleList } from "@/api/system/role"
+import RoleColumnSlots from "@/views/table/vxe-table/tsx/RoleColumnSlots"
 
 defineOptions({
   // 命名当前组件
@@ -24,9 +26,17 @@ interface RowMeta extends UserInfoStruct.UserResponse {
   _VXE_ID?: string
 }
 
+const rolesItemOptions = ref([])
 const rolesItemRender = reactive<VxeFormItemPropTypes.ItemRender<RowMeta, VxeSelectProps>>({
   name: "VxeSelect",
-  options: []
+  props: {
+    multiple: true
+  },
+  optionProps: {
+    label: "name",
+    value: "id"
+  },
+  options: rolesItemOptions as any
 })
 
 const xGridDom = ref<VxeGridInstance>()
@@ -49,11 +59,6 @@ const xGridOpt: VxeGridProps = reactive({
       { icon: "vxe-icon-save", code: "save", status: "success", circle: true }
     ]
   },
-  /** 自定义列配置项 */
-  customConfig: {
-    /** 是否允许列选中  */
-    checkMethod: ({ column }) => !["username"].includes(column.field)
-  },
   /** 列配置 */
   columns: [
     {
@@ -69,8 +74,19 @@ const xGridOpt: VxeGridProps = reactive({
       title: "真名"
     },
     {
-      field: "roles",
-      title: "角色"
+      field: "role_ids",
+      title: "角色",
+      editRender: {
+        name: "VxeSelect",
+        props: {
+          multiple: true
+        },
+        optionProps: {
+          label: "name",
+          value: "id"
+        },
+        options: rolesItemOptions as any
+      }
     },
     {
       field: "password",
@@ -126,6 +142,18 @@ const xGridOpt: VxeGridProps = reactive({
       query: ({ page }) => {
         xGridOpt.loading = true
         crudStore.clearTable()
+        // 每次弹出弹窗的时候获取角色列表
+        const params = {
+          pageSize: 5000,
+          current: 1,
+          status: 2
+        } as UserInfoStruct.RequestParams
+        getRoleList(params).then((res: UserInfoStruct.RoleListResponseData) => {
+          if (res?.data) {
+            rolesItemOptions.value = res.data.list as never
+          }
+        })
+
         return new Promise((resolve) => {
           let total = 0
           let result: RowMeta[] = []
@@ -216,7 +244,7 @@ const xFormOpt: VxeFormProps = reactive({
       }
     },
     {
-      field: "user_roles",
+      field: "role_ids",
       title: "角色",
       itemRender: rolesItemRender
     },
