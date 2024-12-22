@@ -81,6 +81,15 @@ export const constantRoutes: RouteRecordRaw[] = [
           title: "用户管理",
           keepAlive: true
         }
+      },
+      {
+        path: "role-info",
+        component: () => import("@/pages/system/role/index.vue"),
+        name: "RoleInfo",
+        meta: {
+          title: "角色管理",
+          keepAlive: true
+        }
       }
     ]
   },

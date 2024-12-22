@@ -26,22 +26,22 @@ export interface UserListRequest extends RequestParams {
 }
 
 export interface RoleMenu {
-  actionID: string
+  action_id: string
   id: string
-  menuID: string
-  roleID: string
+  menu_id: string
+  role_id: string
 }
 
 export interface Role {
-  createdAt: string
+  created_at: string
   creator: string
   id: string
   memo: string
   name: string
-  roleMenus: RoleMenu[]
+  role_menus: RoleMenu[]
   sequence: number
   status: number
-  updatedAt: string
+  updated_at: string
 }
 
 export interface Pagination {

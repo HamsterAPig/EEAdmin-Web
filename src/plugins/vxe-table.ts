@@ -28,7 +28,7 @@ VXETable.setConfig({
     height: "auto",
     scrollX: {
       enabled: true,
-      gt: 100
+      gt: 500
     },
     scrollY: {
       enabled: true,
