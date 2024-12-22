@@ -13,7 +13,7 @@ import {
 
 import VxeUI, { VxeFormItemPropTypes, VxeGridListeners, VxeSelectProps } from "vxe-pc-ui"
 import { getRoleList } from "@/api/system/role"
-import RoleColumnSlots from "@/views/table/vxe-table/tsx/RoleColumnSlots"
+import { VxeColumnPropTypes } from "vxe-pc-ui/types/components/column"
 
 defineOptions({
   // 命名当前组件
@@ -38,7 +38,9 @@ const rolesItemRender = reactive<VxeFormItemPropTypes.ItemRender<RowMeta, VxeSel
   },
   options: rolesItemOptions as any
 })
-
+const nameFilterRender = reactive<VxeColumnPropTypes.FilterRender>({
+  name: "VxeInput"
+})
 const xGridDom = ref<VxeGridInstance>()
 const xGridOpt: VxeGridProps = reactive({
   id: "VxeUserInfo",
@@ -48,6 +50,9 @@ const xGridOpt: VxeGridProps = reactive({
   /** 分页配置项 */
   pagerConfig: {
     align: "right"
+  },
+  filterConfig: {
+    remote: true
   },
   /** 工具栏配置 */
   toolbarConfig: {
@@ -63,7 +68,14 @@ const xGridOpt: VxeGridProps = reactive({
   columns: [
     {
       type: "checkbox",
+      fixed: "left",
       width: "50px"
+    },
+    {
+      field: "id",
+      filters: [{ data: "" }],
+      filterRender: nameFilterRender,
+      title: "ID"
     },
     {
       field: "user_name",
@@ -103,6 +115,11 @@ const xGridOpt: VxeGridProps = reactive({
     {
       field: "status",
       title: "状态",
+      filters: [
+        { label: "启用", value: "1" },
+        { label: "禁用", value: "2" }
+      ],
+      filterMultiple: true,
       cellRender: {
         name: "VxeSwitch",
         props: { openValue: 1, closeValue: 2 },
@@ -133,56 +150,63 @@ const xGridOpt: VxeGridProps = reactive({
   proxyConfig: {
     /** 启用动态序号代理 */
     seq: true,
-    /** 是否自动加载，默认为 true */
-    // autoLoad: false,
+    filter: true,
     props: {
       total: "total"
     },
     ajax: {
-      query: ({ page }) => {
-        xGridOpt.loading = true
-        crudStore.clearTable()
-        // 每次弹出弹窗的时候获取角色列表
-        const params = {
-          pageSize: 5000,
-          current: 1,
-          status: 2
-        } as UserInfoStruct.RequestParams
-        getRoleList(params).then((res: UserInfoStruct.RoleListResponseData) => {
-          if (res?.data) {
-            rolesItemOptions.value = res.data.list as never
-          }
-        })
-
-        return new Promise((resolve) => {
-          let total = 0
-          let result: RowMeta[] = []
-          /** 加载数据 */
-          const callback = (res: UserInfoStruct.UserListResponseData) => {
-            if (res?.data) {
-              // 总数
-              total = res.data.pagination.total
-              // 列表数据
-              result = res.data.list
-            }
-            xGridOpt.loading = false
-            // 返回值有格式要求，详情见 vxe-table 官方文档
-            resolve({ total, result })
-          }
-
-          /** 接口需要的参数 */
-          const params = {
-            pageSize: page.pageSize,
-            current: page.currentPage
-          } as UserInfoStruct.UserListRequest
-          /** 调用接口 */
-          UserInfoFun.getUserList(params).then(callback).catch(callback)
-        })
+      query: ({ page, filters }) => {
+        return findPageList(page.pageSize, page.currentPage, filters)
       }
     }
   }
 })
 //#endregion
+
+const findPageList = (pageSize: number, currentPage: number, filterList: any[]) => {
+  xGridOpt.loading = true
+  return new Promise((resolve) => {
+    let total = 0
+    let result: RowMeta[] = []
+    /** 加载数据 */
+    const callback = (res: UserInfoStruct.UserListResponseData) => {
+      if (res?.data) {
+        // 总数
+        total = res.data.pagination.total
+        // 列表数据
+        result = res.data.list
+      }
+      xGridOpt.loading = false
+      // 返回值有格式要求，详情见 vxe-table 官方文档
+      resolve({ total, result })
+    }
+
+    /** 接口需要的参数 */
+    const params = {
+      pageSize: pageSize,
+      current: currentPage
+    } as UserInfoStruct.UserListRequest
+
+    const filterItem = filterList[0]
+    if (filterItem) {
+      params.queryValue = filterItem.datas[0]
+    } else {
+      // 获取role列表
+      const params = {
+        pageSize: 5000,
+        current: 1,
+        status: 2
+      } as UserInfoStruct.RequestParams
+      getRoleList(params).then((res: UserInfoStruct.RoleListResponseData) => {
+        if (res?.data) {
+          rolesItemOptions.value = res.data.list as never
+        }
+      })
+    }
+    /** 调用接口 */
+    UserInfoFun.getUserList(params).then(callback).catch(callback)
+  })
+}
 
 //#region vxe-modal
 const xModalDom = ref<VxeModalInstance>()
