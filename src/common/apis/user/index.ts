@@ -4,7 +4,7 @@ import { request } from "@/http/axios"
 /** 获取当前登陆用户详情 */
 export function getUserInfoApi() {
   return request<Login.UserInfoResponseData>({
-    url: "users/info",
+    url: "pub/current/user",
     method: "get"
   })
 }

@@ -1,10 +1,10 @@
-import { request } from "@/utils/service"
-import type * as PublicType from "../types"
+import type * as PublicType from "../types.ts"
+import { request } from "@/http/axios.ts"
 
 export function getUserList(params: PublicType.UserListRequest) {
   return request<PublicType.UserListResponseData>({
     url: "users",
-    params: params,
+    params,
     method: "get"
   })
 }
@@ -12,7 +12,7 @@ export function getUserList(params: PublicType.UserListRequest) {
 export function createUser(data: PublicType.UserCreateRequest) {
   return request<PublicType.UserCreateRequest>({
     url: "users",
-    data: data,
+    data,
     method: "post"
   })
 }
@@ -20,14 +20,14 @@ export function createUser(data: PublicType.UserCreateRequest) {
 export function changeUser(data: PublicType.UserCreateRequest) {
   return request<PublicType.UserCreateRequest>({
     url: `users/${data.id}`,
-    data: data,
+    data,
     method: "put"
   })
 }
 
 export function changeUserStatus(id: string, status: number) {
   let ret
-  if (status == 1) {
+  if (status === 1) {
     ret = "enable"
   } else {
     ret = "disable"

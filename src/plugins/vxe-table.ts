@@ -1,10 +1,10 @@
-import { type App } from "vue"
+import type { App } from "vue"
+import VxeUI from "vxe-pc-ui"
+
+import VXETable from "vxe-table"
 // https://github.com/x-extends/vxe-table-plugin-element
 import VXETablePluginElement from "vxe-table-plugin-element"
-
-import VxeUI from "vxe-pc-ui"
 import "vxe-pc-ui/lib/style.css"
-import VXETable from "vxe-table"
 import "vxe-table/lib/style.css"
 
 VXETable.use(VXETablePluginElement)
@@ -75,7 +75,7 @@ VXETable.setConfig({
   }
 })
 
-export function loadVxeTable(app: App) {
+export function installVxeTable(app: App) {
   /** Vxe Table 组件完整引入 */
   app.use(VxeUI).use(VXETable)
 }

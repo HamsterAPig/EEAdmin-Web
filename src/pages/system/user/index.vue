@@ -1,26 +1,27 @@
 <script lang="ts" setup>
-import { nextTick, reactive, ref, Slots } from "vue"
-import type * as UserInfoStruct from "@/api/system/types"
-import * as UserInfoFun from "@/api/system/user"
-import {
-  type VxeGridInstance,
-  type VxeGridProps,
-  type VxeModalInstance,
-  type VxeModalProps,
-  type VxeFormInstance,
-  type VxeFormProps
+import type * as UserInfoStruct from "@@/apis/system/types.ts"
+import type { VxeFormItemPropTypes, VxeGridListeners, VxeSelectProps } from "vxe-pc-ui"
+import type { VxeColumnPropTypes } from "vxe-pc-ui/types/components/column"
+import type {
+  VxeFormInstance,
+  VxeFormProps,
+  VxeGridInstance,
+  VxeGridProps,
+  VxeModalInstance,
+  VxeModalProps
 } from "vxe-table"
 
-import VxeUI, { VxeFormItemPropTypes, VxeGridListeners, VxeSelectProps } from "vxe-pc-ui"
-import { getRoleList } from "@/api/system/role"
-import { VxeColumnPropTypes } from "vxe-pc-ui/types/components/column"
+import { getRoleList } from "@@/apis/system/role"
+import * as UserInfoFun from "@@/apis/system/user"
+import { nextTick, reactive, ref } from "vue"
+import VxeUI from "vxe-pc-ui"
 
 defineOptions({
   // 命名当前组件
   name: "VxeTableUserInfo"
 })
 
-//#region vxe-grid
+// #region vxe-grid
 interface RowMeta extends UserInfoStruct.UserResponse {
   /** vxe-table 自动添加上去的属性 */
   _VXE_ID?: string
@@ -53,6 +54,9 @@ const xGridOpt: VxeGridProps = reactive({
   },
   filterConfig: {
     remote: true
+  },
+  customConfig: {
+    storage: true
   },
   /** 工具栏配置 */
   toolbarConfig: {
@@ -161,9 +165,9 @@ const xGridOpt: VxeGridProps = reactive({
     }
   }
 })
-//#endregion
+// #endregion
 
-const findPageList = (pageSize: number, currentPage: number, filterList: any[]) => {
+function findPageList(pageSize: number, currentPage: number, filterList: any[]) {
   xGridOpt.loading = true
   return new Promise((resolve) => {
     let total = 0
@@ -183,7 +187,7 @@ const findPageList = (pageSize: number, currentPage: number, filterList: any[]) 
 
     /** 接口需要的参数 */
     const params = {
-      pageSize: pageSize,
+      pageSize,
       current: currentPage
     } as UserInfoStruct.UserListRequest
 
@@ -208,7 +212,7 @@ const findPageList = (pageSize: number, currentPage: number, filterList: any[]) 
   })
 }
 
-//#region vxe-modal
+// #region vxe-modal
 const xModalDom = ref<VxeModalInstance>()
 const xModalOpt: VxeModalProps = reactive({
   title: "",
@@ -220,9 +224,9 @@ const xModalOpt: VxeModalProps = reactive({
     return Promise.resolve()
   }
 })
-//#endregion
+// #endregion
 
-//#region vxe-form
+// #region vxe-form
 const xFormDom = ref<VxeFormInstance>()
 const xFormOpt: VxeFormProps = reactive({
   span: 24,
@@ -291,23 +295,23 @@ const xFormOpt: VxeFormProps = reactive({
     user_name: [
       { required: true, message: "字母开头5~10位数" },
       { min: 2, max: 20, message: "长度应介于2到20之间" },
-      { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9_ ]+$/, message: "用户名仅允许字母开头，且不应包含除字母数字空格外的字符" }
+      { pattern: /^[\u4E00-\u9FA5\w ]+$/, message: "用户名仅允许字母开头，且不应包含除字母数字空格外的字符" }
     ],
     real_name: [
       { required: true, message: "真名不能为空" },
       { min: 2, max: 20, message: "长度应介于2到20之间" },
-      { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9_ ]+$/, message: "用户名仅允许字母开头，且不应包含除字母数字空格外的字符" }
+      { pattern: /^[\u4E00-\u9FA5\w ]+$/, message: "用户名仅允许字母开头，且不应包含除字母数字空格外的字符" }
     ],
     password: [
       { required: true, message: "密码不能为空" },
       { min: 6, max: 20, message: "密码长度应为6-16个字符" },
-      { pattern: /^[A-Za-z0-9]+$/, message: "密码只能包含字母和数字" }
+      { pattern: /^[A-Z0-9]+$/i, message: "密码只能包含字母和数字" }
     ],
-    email: [{ pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, message: "邮箱格式不正确" }],
+    email: [{ pattern: /^[\w.%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i, message: "邮箱格式不正确" }],
     phone: [{ pattern: /^1[3-9]\d{9}$/, message: "电话号码格式不正确" }]
   }
 })
-//#endregion
+// #endregion
 
 const gridEvents: VxeGridListeners<RowMeta> = {
   toolbarButtonClick({ code }) {
@@ -317,7 +321,7 @@ const gridEvents: VxeGridListeners<RowMeta> = {
   }
 }
 
-//#region 增删改查
+// #region 增删改查
 const crudStore = reactive({
   /** 表单类型，true 表示修改，false 表示新增 */
   isUpdate: true,
@@ -408,7 +412,7 @@ const crudStore = reactive({
   /** 更多自定义方法 */
   moreFn: () => {}
 })
-//#endregion
+// #endregion
 </script>
 
 <template>
@@ -417,8 +421,12 @@ const crudStore = reactive({
     <vxe-grid ref="xGridDom" v-bind="xGridOpt" v-on="gridEvents">
       <!-- 操作 -->
       <template #row-operate="{ row }">
-        <el-button link type="primary" @click="crudStore.onShowModal(row)">修改</el-button>
-        <el-button link type="danger" @click="crudStore.onDelete(row)">删除</el-button>
+        <el-button link type="primary" @click="crudStore.onShowModal(row)">
+          修改
+        </el-button>
+        <el-button link type="danger" @click="crudStore.onDelete(row)">
+          删除
+        </el-button>
       </template>
     </vxe-grid>
     <!-- 弹窗 -->

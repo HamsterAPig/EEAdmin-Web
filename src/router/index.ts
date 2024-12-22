@@ -64,6 +64,27 @@ export const constantRoutes: RouteRecordRaw[] = [
     ]
   },
   {
+    path: "/system",
+    component: Layouts,
+    redirect: "/system/userinfo",
+    name: "System",
+    meta: {
+      title: "系统管理",
+      elIcon: "Grid"
+    },
+    children: [
+      {
+        path: "userinfo",
+        component: () => import("@/pages/system/user/index.vue"),
+        name: "UserInfo",
+        meta: {
+          title: "用户管理",
+          keepAlive: true
+        }
+      }
+    ]
+  },
+  {
     path: "/demo",
     component: Layouts,
     redirect: "/demo/unocss",

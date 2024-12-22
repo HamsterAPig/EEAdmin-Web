@@ -1,5 +1,5 @@
-import { request } from "@/utils/service"
-import type * as Login from "./types/login"
+import type * as Login from "./type.ts"
+import { request } from "@/http/axios.ts"
 
 /** 登录并返回 Token */
 export function loginApi(data: Login.LoginRequestData) {

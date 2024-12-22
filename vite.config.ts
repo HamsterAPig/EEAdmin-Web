@@ -9,6 +9,7 @@ import SvgComponent from "unplugin-svg-component/vite"
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers"
 import Components from "unplugin-vue-components/vite"
 import { defineConfig, loadEnv } from "vite"
+import VueDevTools from "vite-plugin-vue-devtools"
 import svgLoader from "vite-svg-loader"
 
 // Configuring Vite: https://cn.vite.dev/config
@@ -38,7 +39,7 @@ export default defineConfig(({ mode }) => {
       // 反向代理
       proxy: {
         "/api/v1": {
-          target: "https://mock.mengxuegu.com/mock/63218b5fb4c53348ed2bc212",
+          target: "http://localhost:8080",
           // 是否为 WebSocket
           ws: false,
           // 是否允许跨域
@@ -116,7 +117,8 @@ export default defineConfig(({ mode }) => {
       Components({
         dts: "types/auto/components.d.ts",
         resolvers: [ElementPlusResolver()]
-      })
+      }),
+      VueDevTools()
     ],
     // Configuring Vitest: https://cn.vitest.dev/config
     test: {
