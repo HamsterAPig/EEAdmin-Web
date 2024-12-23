@@ -1,7 +1,9 @@
 <script lang="ts" setup>
-import type * as SystemInterfaceType from "@@/apis/system/types.ts"
+import type * as RoleInterfaceType from "@@/apis/system/role/types.ts"
+import type { RequestParams } from "@@/apis/system/types.ts"
 import type { VxeFormItemPropTypes, VxeGridListeners, VxeSelectProps } from "vxe-pc-ui"
 import type { VxeColumnPropTypes } from "vxe-pc-ui/types/components/column"
+
 import type {
   VxeFormInstance,
   VxeFormProps,
@@ -10,7 +12,6 @@ import type {
   VxeModalInstance,
   VxeModalProps
 } from "vxe-table"
-
 import { changeRole, changeRoleStatus, createRole, deleteRole, getRoleList } from "@@/apis/system/role"
 import { nextTick, reactive, ref } from "vue"
 import VxeUI from "vxe-pc-ui"
@@ -21,7 +22,7 @@ defineOptions({
 })
 
 // #region vxe-grid
-interface RowMeta extends SystemInterfaceType.Role {
+interface RowMeta extends RoleInterfaceType.Role {
   /** vxe-table 自动添加上去的属性 */
   _VXE_ID?: string
 }
@@ -165,7 +166,7 @@ function findPageList(pageSize: number, currentPage: number, filterList: any[]) 
     let total = 0
     let result: RowMeta[] = []
     /** 加载数据 */
-    const callback = (res: SystemInterfaceType.RoleListResponseData) => {
+    const callback = (res: RoleInterfaceType.RoleListResponseData) => {
       if (res?.data) {
         // 总数
         total = res.data.pagination.total
@@ -181,7 +182,7 @@ function findPageList(pageSize: number, currentPage: number, filterList: any[]) 
     const params = {
       pageSize,
       current: currentPage
-    } as SystemInterfaceType.UserListRequest
+    } as RequestParams
 
     const filterItem = filterList[0]
     if (filterItem) {
@@ -192,8 +193,8 @@ function findPageList(pageSize: number, currentPage: number, filterList: any[]) 
         pageSize: 5000,
         current: 1,
         status: 2
-      } as SystemInterfaceType.RequestParams
-      getRoleList(params).then((res: SystemInterfaceType.RoleListResponseData) => {
+      } as RequestParams
+      getRoleList(params).then((res: RoleInterfaceType.RoleListResponseData) => {
         if (res?.data) {
           rolesItemOptions.value = res.data.list as never
         }
@@ -227,7 +228,7 @@ const xFormOpt: VxeFormProps = reactive({
   /** 是否显示标题冒号 */
   titleColon: false,
   /** 表单数据 */
-  data: {} as SystemInterfaceType.RoleCreateRequest,
+  data: {} as RoleInterfaceType.RoleCreateRequest,
   /** 项列表 */
   items: [
     {

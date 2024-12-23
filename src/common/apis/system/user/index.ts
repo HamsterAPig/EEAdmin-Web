@@ -1,24 +1,25 @@
-import type * as PublicType from "../types.ts"
+import type { RequestParams } from "@@/apis/system/types.ts"
+import type * as UserType from "./types.ts"
 import { request } from "@/http/axios.ts"
 
-export function getUserList(params: PublicType.UserListRequest) {
-  return request<PublicType.UserListResponseData>({
+export function getUserList(params: RequestParams) {
+  return request<UserType.UserListResponseData>({
     url: "users",
     params,
     method: "get"
   })
 }
 
-export function createUser(data: PublicType.UserCreateRequest) {
-  return request<PublicType.UserCreateResponse>({
+export function createUser(data: UserType.UserCreateRequest) {
+  return request<UserType.UserCreateResponse>({
     url: "users",
     data,
     method: "post"
   })
 }
 
-export function changeUser(data: PublicType.UserCreateRequest) {
-  return request<PublicType.UserCreateRequest>({
+export function changeUser(data: UserType.UserCreateRequest) {
+  return request<UserType.UserCreateRequest>({
     url: `users/${data.id}`,
     data,
     method: "put"
@@ -39,7 +40,7 @@ export function changeUserStatus(id: string, status: number) {
 }
 
 export function deleteUser(id: string) {
-  return request<PublicType.UserCreateRequest>({
+  return request<UserType.UserCreateRequest>({
     url: `users/${id}`,
     method: "delete"
   })

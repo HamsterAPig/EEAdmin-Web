@@ -1,6 +1,9 @@
 <script lang="ts" setup>
-import type * as UserInfoStruct from "@@/apis/system/types.ts"
+import type { RoleListResponseData } from "@@/apis/system/role/types.ts"
+import type { RequestParams } from "@@/apis/system/types.ts"
+import type * as UserInfoStruct from "@@/apis/system/user/types.ts"
 import type { VxeFormItemPropTypes, VxeGridListeners, VxeSelectProps } from "vxe-pc-ui"
+
 import type { VxeColumnPropTypes } from "vxe-pc-ui/types/components/column"
 import type {
   VxeFormInstance,
@@ -10,7 +13,6 @@ import type {
   VxeModalInstance,
   VxeModalProps
 } from "vxe-table"
-
 import { getRoleListSelect } from "@@/apis/system/role"
 import * as UserInfoFun from "@@/apis/system/user"
 import { nextTick, reactive, ref } from "vue"
@@ -190,7 +192,7 @@ function findPageList(pageSize: number, currentPage: number, filterList: any[]) 
     const params = {
       pageSize,
       current: currentPage
-    } as UserInfoStruct.UserListRequest
+    } as RequestParams
 
     const filterItem = filterList[0]
     if (filterItem) {
@@ -199,8 +201,8 @@ function findPageList(pageSize: number, currentPage: number, filterList: any[]) 
       // 获取role列表
       const params = {
         status: 1
-      } as UserInfoStruct.RequestParams
-      getRoleListSelect(params).then((res: UserInfoStruct.RoleListResponseData) => {
+      } as RequestParams
+      getRoleListSelect(params).then((res: RoleListResponseData) => {
         if (res?.data) {
           rolesItemOptions.value = res.data.list as never
         }
