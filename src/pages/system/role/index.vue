@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type * as UserInfoStruct from "@@/apis/system/types.ts"
+import type * as SystemInterfaceType from "@@/apis/system/types.ts"
 import type { VxeFormItemPropTypes, VxeGridListeners, VxeSelectProps } from "vxe-pc-ui"
 import type { VxeColumnPropTypes } from "vxe-pc-ui/types/components/column"
 import type {
@@ -11,8 +11,7 @@ import type {
   VxeModalProps
 } from "vxe-table"
 
-import { getRoleList } from "@@/apis/system/role"
-import * as UserInfoFun from "@@/apis/system/user"
+import { changeRole, changeRoleStatus, createRole, deleteRole, getRoleList } from "@@/apis/system/role"
 import { nextTick, reactive, ref } from "vue"
 import VxeUI from "vxe-pc-ui"
 
@@ -22,16 +21,17 @@ defineOptions({
 })
 
 // #region vxe-grid
-interface RowMeta extends UserInfoStruct.Role {
+interface RowMeta extends SystemInterfaceType.Role {
   /** vxe-table 自动添加上去的属性 */
   _VXE_ID?: string
 }
 
 const rolesItemOptions = ref([])
-const rolesItemRender = reactive<VxeFormItemPropTypes.ItemRender<RowMeta, VxeSelectProps>>({
+reactive<VxeFormItemPropTypes.ItemRender<RowMeta, VxeSelectProps>>({
   name: "VxeSelect",
   props: {
-    multiple: true
+    multiple: true,
+    clearable: true
   },
   optionProps: {
     label: "name",
@@ -121,7 +121,7 @@ const xGridOpt: VxeGridProps = reactive({
         props: { openValue: 1, closeValue: 2 },
         events: {
           change(cellParams: { row: RowMeta }) {
-            UserInfoFun.changeUserStatus(cellParams.row.id, cellParams.row.status)
+            changeRoleStatus(cellParams.row.id, cellParams.row.status)
           }
         }
       }
@@ -165,7 +165,7 @@ function findPageList(pageSize: number, currentPage: number, filterList: any[]) 
     let total = 0
     let result: RowMeta[] = []
     /** 加载数据 */
-    const callback = (res: UserInfoStruct.RoleListResponseData) => {
+    const callback = (res: SystemInterfaceType.RoleListResponseData) => {
       if (res?.data) {
         // 总数
         total = res.data.pagination.total
@@ -181,7 +181,7 @@ function findPageList(pageSize: number, currentPage: number, filterList: any[]) 
     const params = {
       pageSize,
       current: currentPage
-    } as UserInfoStruct.UserListRequest
+    } as SystemInterfaceType.UserListRequest
 
     const filterItem = filterList[0]
     if (filterItem) {
@@ -192,8 +192,8 @@ function findPageList(pageSize: number, currentPage: number, filterList: any[]) 
         pageSize: 5000,
         current: 1,
         status: 2
-      } as UserInfoStruct.RequestParams
-      getRoleList(params).then((res: UserInfoStruct.RoleListResponseData) => {
+      } as SystemInterfaceType.RequestParams
+      getRoleList(params).then((res: SystemInterfaceType.RoleListResponseData) => {
         if (res?.data) {
           rolesItemOptions.value = res.data.list as never
         }
@@ -227,32 +227,22 @@ const xFormOpt: VxeFormProps = reactive({
   /** 是否显示标题冒号 */
   titleColon: false,
   /** 表单数据 */
-  data: {} as UserInfoStruct.UserCreateRequest,
+  data: {} as SystemInterfaceType.RoleCreateRequest,
   /** 项列表 */
   items: [
     {
-      field: "user_name",
-      title: "用户名",
+      field: "name",
+      title: "角色名",
       itemRender: { name: "$input", props: { placeholder: "请输入" } }
     },
     {
-      field: "real_name",
-      title: "真名",
-      itemRender: { name: "$input", props: { placeholder: "请输入" } }
+      field: "sequence",
+      title: "权限等级",
+      itemRender: { name: "VxeNumberInput", props: { placeholder: "请输入" } }
     },
     {
-      field: "password",
-      title: "密码",
-      itemRender: { name: "VxePasswordInput", props: { placeholder: "请输入" } }
-    },
-    {
-      field: "phone",
-      title: "电话号码",
-      itemRender: { name: "$input", props: { placeholder: "请输入" } }
-    },
-    {
-      field: "email",
-      title: "邮箱",
+      field: "memo",
+      title: "权限说明",
       itemRender: { name: "$input", props: { placeholder: "请输入" } }
     },
     {
@@ -260,13 +250,8 @@ const xFormOpt: VxeFormProps = reactive({
       title: "状态",
       itemRender: {
         name: "VxeSwitch",
-        props: { openValue: 2, closeValue: 1 }
+        props: { openValue: 1, closeValue: 2 }
       }
-    },
-    {
-      field: "role_ids",
-      title: "角色",
-      itemRender: rolesItemRender
     },
     {
       align: "right",
@@ -284,23 +269,9 @@ const xFormOpt: VxeFormProps = reactive({
   ],
   /** 校验规则 */
   rules: {
-    user_name: [
-      { required: true, message: "字母开头5~10位数" },
-      { min: 2, max: 20, message: "长度应介于2到20之间" },
-      { pattern: /^[\u4E00-\u9FA5\w ]+$/, message: "用户名仅允许字母开头，且不应包含除字母数字空格外的字符" }
-    ],
-    real_name: [
-      { required: true, message: "真名不能为空" },
-      { min: 2, max: 20, message: "长度应介于2到20之间" },
-      { pattern: /^[\u4E00-\u9FA5\w ]+$/, message: "用户名仅允许字母开头，且不应包含除字母数字空格外的字符" }
-    ],
-    password: [
-      { required: true, message: "密码不能为空" },
-      { min: 6, max: 20, message: "密码长度应为6-16个字符" },
-      { pattern: /^[A-Z0-9]+$/i, message: "密码只能包含字母和数字" }
-    ],
-    email: [{ pattern: /^[\w.%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i, message: "邮箱格式不正确" }],
-    phone: [{ pattern: /^1[3-9]\d{9}$/, message: "电话号码格式不正确" }]
+    name: [{ required: true, message: "角色名必须填写" }],
+    status: [{ required: true, message: "权限等级必须填写" }],
+    sequence: [{ type: "number" }]
   }
 })
 // #endregion
@@ -325,16 +296,13 @@ const crudStore = reactive({
   onShowModal: (row?: RowMeta) => {
     if (row) {
       crudStore.isUpdate = true
-      xModalOpt.title = "修改用户"
+      xModalOpt.title = "修改角色"
       // 赋值
       xFormOpt.data = row
       xFormOpt.data.password = ""
     } else {
       crudStore.isUpdate = false
-      xModalOpt.title = "新增用户"
-    }
-    if (xFormOpt?.rules?.password?.[0]) {
-      xFormOpt.rules.password[0].required = !crudStore.isUpdate
+      xModalOpt.title = "新增角色"
     }
     xModalDom.value?.open()
     nextTick(() => {
@@ -359,9 +327,9 @@ const crudStore = reactive({
         crudStore.commitQuery()
       }
       if (crudStore.isUpdate) {
-        UserInfoFun.changeUser(xFormOpt.data).then(callback)
+        changeRole(xFormOpt.data).then(callback)
       } else {
-        UserInfoFun.createUser(xFormOpt.data).then(callback).catch(callback)
+        createRole(xFormOpt.data).then(callback).catch(callback)
       }
     })
   },
@@ -385,7 +353,7 @@ const crudStore = reactive({
       })
       .then((type) => {
         if (type === "confirm") {
-          UserInfoFun.deleteUser(row.id)
+          deleteRole(row.id)
           const $grid = xGridDom.value
           if ($grid) {
             $grid.remove(row)

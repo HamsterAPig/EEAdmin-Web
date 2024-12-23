@@ -21,6 +21,21 @@ export interface RequestParams {
   status: number
 }
 
+export interface RoleCreateRequest {
+  name: string
+  status: number
+  sequence: number
+  memo: string
+  created_at: string
+  updated_at: string
+}
+
+export interface RoleChangeRequest extends RoleCreateRequest {
+  id: string
+}
+
+export type RoleDeleteResponse = ApiResponseData<{ status: string }>
+
 export interface UserListRequest extends RequestParams {
   role_ids: string
 }
@@ -58,6 +73,8 @@ export type UserListResponseData = ApiResponseData<{
 export type UserCreateResponse = ApiResponseData<{
   id: string
 }>
+
+export type RoleCreateResponse = UserCreateResponse
 
 export type RoleListResponseData = ApiResponseData<{
   list: Role[]
