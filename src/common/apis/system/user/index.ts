@@ -10,7 +10,7 @@ export function getUserList(params: PublicType.UserListRequest) {
 }
 
 export function createUser(data: PublicType.UserCreateRequest) {
-  return request<PublicType.UserCreateRequest>({
+  return request<PublicType.UserCreateResponse>({
     url: "users",
     data,
     method: "post"

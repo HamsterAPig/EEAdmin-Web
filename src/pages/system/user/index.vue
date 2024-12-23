@@ -11,7 +11,7 @@ import type {
   VxeModalProps
 } from "vxe-table"
 
-import { getRoleList } from "@@/apis/system/role"
+import { getRoleListSelect } from "@@/apis/system/role"
 import * as UserInfoFun from "@@/apis/system/user"
 import { nextTick, reactive, ref } from "vue"
 import VxeUI from "vxe-pc-ui"
@@ -31,7 +31,8 @@ const rolesItemOptions = ref([])
 const rolesItemRender = reactive<VxeFormItemPropTypes.ItemRender<RowMeta, VxeSelectProps>>({
   name: "VxeSelect",
   props: {
-    multiple: true
+    multiple: true,
+    clearable: true
   },
   optionProps: {
     label: "name",
@@ -197,11 +198,9 @@ function findPageList(pageSize: number, currentPage: number, filterList: any[]) 
     } else {
       // 获取role列表
       const params = {
-        pageSize: 5000,
-        current: 1,
-        status: 2
+        status: 1
       } as UserInfoStruct.RequestParams
-      getRoleList(params).then((res: UserInfoStruct.RoleListResponseData) => {
+      getRoleListSelect(params).then((res: UserInfoStruct.RoleListResponseData) => {
         if (res?.data) {
           rolesItemOptions.value = res.data.list as never
         }
@@ -268,7 +267,7 @@ const xFormOpt: VxeFormProps = reactive({
       title: "状态",
       itemRender: {
         name: "VxeSwitch",
-        props: { openValue: 2, closeValue: 1 }
+        props: { openValue: 1, closeValue: 2 }
       }
     },
     {
