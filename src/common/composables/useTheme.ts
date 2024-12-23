@@ -1,4 +1,5 @@
 import { getActiveThemeName, setActiveThemeName } from "@@/utils/cache/local-storage"
+import VxeUI from "vxe-pc-ui"
 
 const DEFAULT_THEME_NAME = "normal"
 
@@ -34,6 +35,11 @@ const activeThemeName = ref<ThemeName>(getActiveThemeName() || DEFAULT_THEME_NAM
 /** 设置主题 */
 function setTheme(value: ThemeName) {
   activeThemeName.value = value
+  if (value === "dark") {
+    VxeUI.setTheme("dark")
+  } else {
+    VxeUI.setTheme("light")
+  }
 }
 
 /** 在 html 根元素上挂载 class */
@@ -55,6 +61,11 @@ function initTheme() {
     removeHtmlClass(value)
     addHtmlClass(value)
     setActiveThemeName(value)
+    if (value === "dark") {
+      VxeUI.setTheme("dark")
+    } else {
+      VxeUI.setTheme("light")
+    }
   })
 }
 
