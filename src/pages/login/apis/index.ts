@@ -24,3 +24,10 @@ export function getCaptchaId() {
     method: "get"
   })
 }
+
+export function logOut() {
+  return request({
+    url: "pub/login/exit",
+    method: "post"
+  })
+}

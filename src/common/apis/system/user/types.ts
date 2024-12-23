@@ -14,7 +14,9 @@ export interface UserInfoBase {
 
 export interface UserCreateRequest extends UserInfoBase {}
 
-export interface UserResponse extends UserInfoBase {}
+export interface UserResponse extends UserInfoBase {
+  role_ids: string
+}
 
 export interface UserListRequest extends RequestParams {
   role_ids: string
