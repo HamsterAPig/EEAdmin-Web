@@ -1,9 +1,10 @@
 <script lang="ts" setup>
+import type { MenuListResponse, MenuRequestParam, MenuResponse } from "@@/apis/system/menu/types.ts"
 import type * as RoleInterfaceType from "@@/apis/system/role/types.ts"
 import type { RequestParams } from "@@/apis/system/types.ts"
-import type { VxeFormItemPropTypes, VxeGridListeners, VxeSelectProps } from "vxe-pc-ui"
-import type { VxeColumnPropTypes } from "vxe-pc-ui/types/components/column"
+import type { VxeGridListeners } from "vxe-pc-ui"
 
+import type { VxeColumnPropTypes } from "vxe-pc-ui/types/components/column"
 import type {
   VxeFormInstance,
   VxeFormProps,
@@ -12,6 +13,7 @@ import type {
   VxeModalInstance,
   VxeModalProps
 } from "vxe-table"
+import { getMenuTreeList } from "@@/apis/system/menu"
 import { changeRole, changeRoleStatus, createRole, deleteRole, getRoleList } from "@@/apis/system/role"
 import { nextTick, reactive, ref } from "vue"
 import VxeUI from "vxe-pc-ui"
@@ -27,19 +29,7 @@ interface RowMeta extends RoleInterfaceType.Role {
   _VXE_ID?: string
 }
 
-const rolesItemOptions = ref([])
-reactive<VxeFormItemPropTypes.ItemRender<RowMeta, VxeSelectProps>>({
-  name: "VxeSelect",
-  props: {
-    multiple: true,
-    clearable: true
-  },
-  optionProps: {
-    label: "name",
-    value: "id"
-  },
-  options: rolesItemOptions as any
-})
+const menuItemOptions = ref<MenuResponse[]>([])
 const nameFilterRender = reactive<VxeColumnPropTypes.FilterRender>({
   name: "VxeInput"
 })
@@ -102,7 +92,7 @@ const xGridOpt: VxeGridProps = reactive({
           label: "name",
           value: "id"
         },
-        options: rolesItemOptions as any
+        options: menuItemOptions as any
       }
     },
     {
@@ -190,13 +180,11 @@ function findPageList(pageSize: number, currentPage: number, filterList: any[]) 
     } else {
       // 获取role列表
       const params = {
-        pageSize: 5000,
-        current: 1,
-        status: 2
-      } as RequestParams
-      getRoleList(params).then((res: RoleInterfaceType.RoleListResponseData) => {
+        status: 1
+      } as MenuRequestParam
+      getMenuTreeList(params).then((res: MenuListResponse) => {
         if (res?.data) {
-          rolesItemOptions.value = res.data.list as never
+          menuItemOptions.value = res.data.list
         }
       })
     }
@@ -240,6 +228,21 @@ const xFormOpt: VxeFormProps = reactive({
       field: "sequence",
       title: "权限等级",
       itemRender: { name: "VxeNumberInput", props: { placeholder: "请输入" } }
+    },
+    {
+      field: "role_menus",
+      title: "菜单权限",
+      itemRender: {
+        name: "VxeSelect",
+        props: {
+          multiple: true
+        },
+        optionProps: {
+          label: "name",
+          value: "id"
+        },
+        options: menuItemOptions as any
+      }
     },
     {
       field: "memo",

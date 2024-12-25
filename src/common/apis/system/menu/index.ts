@@ -8,3 +8,11 @@ export function getMenuList(params: MenuType.MenuRequestParam) {
     method: "get"
   })
 }
+
+export function getMenuTreeList(params: MenuType.MenuRequestParam) {
+  return request<MenuType.MenuListResponse>({
+    url: "menus.tree",
+    params,
+    method: "get"
+  })
+}
