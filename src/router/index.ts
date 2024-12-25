@@ -90,6 +90,15 @@ export const constantRoutes: RouteRecordRaw[] = [
           title: "角色管理",
           keepAlive: true
         }
+      },
+      {
+        path: "menu-info",
+        component: () => import("@/pages/system/menu/index.vue"),
+        name: "MenuInfo",
+        meta: {
+          title: "菜单权限",
+          keepAlive: true
+        }
       }
     ]
   },
