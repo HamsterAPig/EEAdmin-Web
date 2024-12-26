@@ -24,9 +24,10 @@ defineOptions({
 })
 
 // #region vxe-grid
-interface RowMeta extends RoleInterfaceType.Role {
+interface RowMeta extends Omit<RoleInterfaceType.Role, "role_menus"> {
   /** vxe-table 自动添加上去的属性 */
   _VXE_ID?: string
+  role_menus: string[] // 重新定义 role_menus 为 string[] 类型
 }
 
 const menuItemOptions = ref<MenuResponse[]>([])
@@ -161,7 +162,11 @@ function findPageList(pageSize: number, currentPage: number, filterList: any[]) 
         // 总数
         total = res.data.pagination.total
         // 列表数据
-        result = res.data.list
+        const ret = res.data.list
+        result = ret.map(role => ({
+          ...role,
+          role_menus: role.role_menus.map(menu => menu.menu_id)
+        }))
       }
       xGridOpt.loading = false
       // 返回值有格式要求，详情见 vxe-table 官方文档
